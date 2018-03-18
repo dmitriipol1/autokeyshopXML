@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE yml_catalog SYSTEM "shops.dtd">
+<yml_catalog date="<%= Time.now.strftime("%Y-%m-%d %H:%M:%S") %>">
+	<shop>
+		<name>AutoKeyShop</name>
+		<company>AutoKeyShop</company>
+		<url>http://autokeyshop.ru</url>
+		<currencies>
+			<currency id="RUR" rate="1"/>
+		</currencies>
+		<categories>
+			<% @marks.each do |mark| %>
+				<category id="<%= mark.id %>"><%= mark.name.gsub('&','and') %></category>
+				<% mark.models.each do |model| %>
+					<category id="<%= 150000 + model.id %>" parentId="<%= mark.id %>"><%=model.name.gsub('&','and')%></category>
+				<% end %>
+			<% end %>
+		</categories>
+		<offers>
+			<% bad_keys = [71, 72, 73, 74, 75, 76, 146, 467, 504, 654]%>
+			<% @marks.each do |mark| %>
+				<% mark.models.each do |model| %>
+					<% model.key_models.each do |key_model| %>
+						<% if (!bad_keys.include? key_model.id) && key_model.is_available %>
+									<% for i in 0..model.keys.size-1 %>
+										<% key = model.keys[i] %>
+											<% if key.total_price > 0 && key.id == key_model.key_id %>
+								<offer id="<%= key_model.id %>">
+									<url>http://autokeyshop.ru/key/<%= key_model.code %></url>
+									<categoryId><%= 150000 + model.id %></categoryId>
+									<currencyId>RUR</currencyId>
+									<name><%= key_model.name%></name>
+									<% tmp = key_model.description.gsub(/<\/?[^>]*>/,'').gsub(/[&,nbsp]/,'').gsub('Оригинальный ','').gsub('Оригинальная вставка','').strip.chomp %>
+									<% if !tmp.empty? %>
+									<description><%= UnicodeUtils.upcase(tmp.chr) %><%= tmp[1, tmp.size-1] %></description>	
+									<% end %>
+									<picture>http://autokeyshop.ru<%= key.img%></picture> 
+									<model><%= key.name%></model>
+									<param name="keyid"><%= key_model.key_id%></param>
+												<price><%= key.total_price %></price>
+								</offer>
+												<% break %>
+											<%end%>
+									<%end%>
+						<%end%>
+					<% end %>
+				<% end %>
+			<% end %>
+		</offers>
+	</shop>
+</yml_catalog>

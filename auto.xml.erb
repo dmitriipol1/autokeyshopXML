@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<parts>
+<% bad_keys = [71, 72, 73, 74, 75, 76, 146, 467, 504, 654]%>
+	<% @marks.each do |mark| %>
+		<% mark.models.each do |model| %>
+			<% model.key_models.each do |key_model| %>
+				<% if (!bad_keys.include? key_model.id) && key_model.is_available %>
+							<% for i in 0..model.keys.size-1 %>
+								<% key = model.keys[i] %>
+									<% if key.total_price > 0 && key.id == key_model.key_id  %>
+						<part>
+							<id><%= key_model.id %></id>
+							<title><%= key_model.name.gsub('Ключ','Ключ зажигания')%></title>
+							<city>Москва</city>
+							<pickup_address>Москва, Лужнецкая наб. 10а стр. 16</pickup_address>
+							<phone>+7 (499) 110-19-22</phone>
+<% tmp = key_model.description.gsub(/<\/?[^>]*>/,'').gsub(/[&,nbsp]/,'').gsub('Оригинальный ','').gsub('Оригинальная вставка','').strip.chomp %>
+							<% if !tmp.empty? %>
+								<description><%= UnicodeUtils.upcase(tmp.chr) %><%= tmp[1, tmp.size-1] %></description>	
+							<% end %>
+							<is_new>True</is_new>
+							<price><%= key.first_price %></price>
+							<images>
+								<image>http://autokeyshop.ru<%= key.img %></image> 
+							</images>
+							<properties>
+						        <property name="Модель"><%= key.name %></property>
+					        </properties>
+					        <compatibility>
+<% years = key_model.production_years.collect { |item| item.name } %>
+								<car><%= mark.name %> <%= model.name %> 
+								<% if years.size>0 %>
+									<%= years[0]%>-<%= years[years.size-1]%> г.в.
+								<% end %>
+								</car>
+							</compatibility>
+						</part>
+										<% break %>
+									<%end%>
+							<%end%>
+				<%end%>
+			<% end %>
+		<% end %>
+	<% end %>
+</parts>
